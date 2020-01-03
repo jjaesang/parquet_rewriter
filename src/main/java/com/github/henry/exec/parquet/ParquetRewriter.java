@@ -11,12 +11,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.parquet.filter2.predicate.FilterApi;
+import org.apache.parquet.hadoop.ParquetInputFormat;
+
+import static org.apache.parquet.filter2.predicate.FilterApi.intColumn;
 
 public class ParquetRewriter extends Executable {
 
     private static final Log LOG = LogFactory.getLog(ParquetRewriter.class.getName());
 
-    public ParquetRewriter(Configuration configuration){
+    public ParquetRewriter(Configuration configuration) {
         super(configuration);
     }
 
@@ -30,6 +34,18 @@ public class ParquetRewriter extends Executable {
 
         String[] inputs = cl.getOptionValues("i");
         String output = cl.getOptionValue("o");
+
+
+        ParquetInputFormat.setFilterPredicate(conf,
+                FilterApi.and(
+                        FilterApi.ltEq(intColumn("line"), -1000),
+                        FilterApi.gtEq(intColumn("line"), -1000)
+                )
+        );
+
+        final String fpString = conf.get(ParquetInputFormat.FILTER_PREDICATE);
+        conf.set(ParquetInputFormat.FILTER_PREDICATE, fpString);
+
 
         RunnableHdfsJob runJob = new ParquetRewriterJob(conf);
         RunnableJob.JobReturnCode jobreturnCode = runJob.runJob("JobName", inputs, output);
