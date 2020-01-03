@@ -8,8 +8,12 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.parquet.example.data.Group;
+import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.hadoop.ParquetInputFormat;
 import org.apache.parquet.hadoop.ParquetOutputFormat;
+import org.apache.parquet.hadoop.api.WriteSupport;
+import org.apache.parquet.hadoop.example.GroupReadSupport;
+import org.apache.parquet.hadoop.example.GroupWriteSupport;
 
 import java.io.IOException;
 
@@ -38,6 +42,9 @@ public class ParquetRewriterJob extends RunnableHdfsJob {
 
         job.setInputFormatClass(ParquetInputFormat.class);
         job.setOutputFormatClass(ParquetOutputFormat.class);
+
+        ParquetInputFormat.setReadSupportClass(job, GroupReadSupport.class);
+        ParquetOutputFormat.setWriteSupportClass(job, GroupWriteSupport.class);
 
         job.setNumReduceTasks(numberOfReduceTasks);
 
