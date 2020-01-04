@@ -14,6 +14,8 @@ import org.apache.parquet.hadoop.example.GroupReadSupport;
 import org.apache.parquet.hadoop.example.GroupWriteSupport;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ParquetRewriterJob extends RunnableHdfsJob {
 
@@ -31,6 +33,12 @@ public class ParquetRewriterJob extends RunnableHdfsJob {
 
         for (final String input : inputs) FileInputFormat.addInputPath(job, new Path(input));
         FileOutputFormat.setOutputPath(job, new Path(output));
+
+        try {
+            job.addCacheFile(new URI("hdfs://localhost:9000/cached_Geeks/stopWords.txt"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
 
         job.setMapperClass(ParquetRewriterMapper.class);
         job.setMapOutputKeyClass(Void.class);
